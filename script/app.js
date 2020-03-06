@@ -10,13 +10,32 @@
 
 	function changeImageSet() {
 
+		document.querySelectorAll(".puzzle-board .drop-zone").forEach((element)=>element.innerHTML="");
+		
+		
+		let imagePieces = document.querySelectorAll("img.puzzle-image");
+		if(imagePieces.length<4){
+			imagePieces.forEach((element)=>element.parentNode.removeChild(element));
+		}
+
 		pieceNames.forEach((piece, index) =>{
-			
-			dropPuzzle[index].src = `images/${piece + this.dataset.puzzleref}.jpg`;
-			dropPuzzle[index].id = `${piece + this.dataset.puzzleref}`;
+			if(imagePieces.length<4){
+				let sourceZone = document.querySelector(".puzzle-pieces");
+				let imgElement = document.createElement("img");
+				imgElement.src = `images/${piece + this.dataset.puzzleref}.jpg`;;
+				imgElement.id = `${piece + this.dataset.puzzleref}`;
+				imgElement.setAttribute("alt","top left");
+				imgElement.classList.add("puzzle-image");
+				sourceZone.appendChild(imgElement);
+			} else {
+				imagePieces[index].src = `images/${piece + this.dataset.puzzleref}.jpg`;
+				imagePieces[index].id = `${piece + this.dataset.puzzleref}`;
+			}	
 		}); 
 
-	gameBoard.style.backgroundImage = `url(images/backGround${this.dataset.puzzleref}.jpg)`;
+		addAllListeners();
+
+		gameBoard.style.backgroundImage = `url(images/backGround${this.dataset.puzzleref}.jpg)`;
 
 	//debugger;
 	}
@@ -24,6 +43,7 @@
 	//allow to drag Puzzlepieces//
 	function allowDrag(event) {
 		console.log ('started dragging an image');
+		console.log("id of image = ", this.id);
 		event.dataTransfer.setData("text/plain", this.id);
 	}
 
@@ -37,29 +57,20 @@
 	function allowDrop(event) {
 		console.log ('dropping in a drop zone');
 		let currentImage = event.dataTransfer.getData("text/plain");
+		console.log("currentImage = ", currentImage);
 		event.target.appendChild(document.querySelector(`#${currentImage}`));
 	}
 
-	dropPuzzle.forEach(piece => piece.addEventListener('dragstart', allowDrag));
+	function addAllListeners(){
+		let dropPuzzle = document.querySelectorAll('.puzzle-pieces img');
+		dropPuzzle.forEach(piece => piece.addEventListener('dragstart', allowDrag));
 
-	dropZones.forEach(zone => {
-		zone.addEventListener('dragover', allowDragOver);
-		zone.addEventListener('drop', allowDrop);
-	});
-
-	function resetPuzzlePieces() {
-		debugger;
-		//change the current puxxle, generate the pieces
-		//clean out the puzzle pieces div
-		dropPuzzle.innerHTML = "";
-
-		//generate new pieces
-		changeImageSet(this.dataset.puzzleref);
-
-		for (var piece =0; piece< dropZones.length; piece++){
-			dropZones[piece].innerHTML ="";
-		}
+		dropZones.forEach(zone => {
+			zone.addEventListener('dragover', allowDragOver);
+			zone.addEventListener('drop', allowDrop);
+		});
 	}
+	
 
 	puzzleButtons.forEach(button => button.addEventListener('click',changeImageSet));
 	
